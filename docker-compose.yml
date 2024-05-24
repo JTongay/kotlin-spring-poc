@@ -1,0 +1,40 @@
+services:
+  app:
+    image: test:joey
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    volumes:
+      - ./src/main:/app/src/main
+    depends_on:
+      - db
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+    environment:
+      - SPRING_R2DBC_URL=r2dbc:postgresql://host.docker.internal:5432/joey
+      - SPRING_R2DBC_USERNAME=test
+      - SPRING_R2DBC_PASSWORD=password
+      - SERVER_PORT=8000
+      - JAVA_OPTS="-XX:+UseG1GC -XX:MaxRAMPercentage=75"
+#      - SPRING_DATASOURCE_URL=r2dbc:postgresql://db:5432/joey
+#      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
+  db:
+    image: postgres:16-alpine
+    hostname: postgres
+    expose:
+      - "5432"
+    ports:
+      - "5432:5432"
+    restart: always
+    container_name: db
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_HOST=5432
+      - POSTGRES_DB=joey
+    command: -p 5432
